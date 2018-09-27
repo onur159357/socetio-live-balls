@@ -5,8 +5,19 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>{{title}}</title>
   <link rel="stylesheet" href='/stylesheets/style.css'>
+  <link rel="stylesheet" href='/bootstrap/dist/css/bootstrap.min.css'>
 </head>
 <body>
-  {{{body}}}
+  {{> header}}
+  <main>
+    {{{body}}}
+  </main>
+  {{> footer}}
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/javascripts/services/indexFactory.js"></script>
+  <script src="/javascripts/indexController.js"></script>
+  
+  
 </body>
 </html>
