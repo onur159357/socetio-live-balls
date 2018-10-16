@@ -154,10 +154,9 @@ main {
         width: 100px;
         height: 100px;
         position: absolute;
-        top: 0px;
-        left: 0px;
         background-color: aqua;
         @extend .radius50;
+        @extend .transition;
 
         .ball-user-name{
             font-weight: bold;
