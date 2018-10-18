@@ -10,29 +10,9 @@ let container = document.querySelector("#myController");
 let theThing;
 let socketContent;
 
-let ballUserHTML = (data) => {
-    return new Promise((resolve, reject) => {
-        htmlContent = new String();
-
-        console.log(data);
-        for(key in data) {
-            htmlContent +=  `
-                <div class="ball-user" id="${data[key].id}" style = 'left: ${data[key].position.x}px; top:${data[key].position.y}px'>
-                    <div class="ball-msg">message</div>
-                    <div class="ball-user-name"> ${data[key].userName} </div>
-                </div>`;
-
-        }
-
-        resolve(htmlContent);
-
-    })
-    
-}
-
 //soket bağlantısını sağlayan function
 let indexFactory = (userName) => {
-    connectSocket('http://localhost:3000/', connectionOption)
+    connectSocket('http://192.168.2.51:3000/', connectionOption)
         .then((socket) => {
             socketContent = socket;
             //init() function u içerisinden gelen user name i server a yolladık
@@ -88,8 +68,28 @@ let indexFactory = (userName) => {
                 let userBallId = document.getElementById(data.socketId);
                     userBallId.style.top = data.y;
                     userBallId.style.left = data.x;
-
             })
+            
+            //mesajı alıyoruz
+            let message = () => {
+                let messageBox = document.getElementById('message-box').value;
+                document.getElementById('message-box').value = '';
+                userStatusTag[0].insertAdjacentHTML('beforeend', `<li class="list-group-item"> <b>${userName}</b> ${messageBox}</li> `);
+                //Scrollu aşağı kaydırıyoruz
+                let messageArea = document.querySelectorAll('.message-area')[0];
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+            let messageEnter = (event) => {
+                event.preventDefault();
+                if (event.keyCode === 13) {
+                    message();
+                }
+            }
+            
+            let messageBtn = document.getElementById('message-btn'); 
+            let messageBox = document.getElementById('message-box'); 
+            messageBtn.addEventListener('click', message, false);
+            messageBox.addEventListener("keyup", messageEnter, false);
             
         }).catch((err) => {
             console.log(err);
@@ -117,7 +117,32 @@ if(myControler !== null)
 else
     console.log('myControler yok');
 
+
+//HTML BALL
+let ballUserHTML = (data) => {
+    return new Promise((resolve, reject) => {
+        htmlContent = new String();
+        for(key in data) {
+            htmlContent +=  `
+                <div class="ball-user ${data[key].color}" id="${data[key].id}" style = 'left: ${data[key].position.x}px; top:${data[key].position.y}px'>
+                    <div class="ball-msg">message</div>
+                    <div class="ball-user-name"> ${data[key].userName} </div>
+                </div>`;
+
+        }
+
+        resolve(htmlContent);
+
+    })
+    
+}
+
 //Animasyon işlemleri
+const socketAnimate = (x, y) => {
+    socketContent.emit('animate', { x, y });
+
+}
+
 function getClickPosition(e) {
     let parentPosition = getPosition(e.currentTarget);
     let xPosition = e.clientX - parentPosition.x - (theThing.clientWidth / 2);
@@ -126,7 +151,6 @@ function getClickPosition(e) {
     theThing.style.left = xPosition + "px";
     theThing.style.top = yPosition + "px";
 
-    console.log(xPosition, yPosition);
     users[theThing.id].position.x = xPosition;
     users[theThing.id].position.y = yPosition;
     
@@ -162,9 +186,4 @@ function getPosition(el) {
         y: yPos
 
     };
-}
-
-const socketAnimate = (x, y) => {
-    socketContent.emit('animate', { x, y });
-
 }

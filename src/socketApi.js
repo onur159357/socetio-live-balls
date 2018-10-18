@@ -6,6 +6,9 @@ socketApi.io = io;
 
 const users = {};
 
+//Helper-randomColor
+const randomColor = require('../helper/randomColor');
+
 //connection ile bağlantı durumunu kontorol ediyoruz.
 io.on('connection', (socket) => {
     //client den gelen user name i aldık
@@ -16,7 +19,8 @@ io.on('connection', (socket) => {
            position : {
                x : 0,
                y : 0,
-           }
+           },
+           color : randomColor(), 
        }
        const userData = Object.assign(data, defaultData); // İki objeyi birleştirdik
        users[socket.id] = userData;
