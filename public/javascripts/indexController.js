@@ -22,6 +22,7 @@ let indexFactory = (userName) => {
             socket.on('newUser', (data) => {
                 users[data.id] = data;
                 userStatusTag[0].insertAdjacentHTML('beforeend', `<li class="list-group-item">[SERVER] <b> ${data.userName} </b> Katıldı</li> `);
+                scrollTop();
 
                 ballUserHTML(users).then((data) => {
                     ballContent[0].innerHTML = data;
@@ -42,6 +43,7 @@ let indexFactory = (userName) => {
                 delete users[data.id];  
                 let userBall = document.getElementById(`${data.id}`);
                 userBall.remove(userBall);
+                scrollTop();
 
             });
 
@@ -62,35 +64,51 @@ let indexFactory = (userName) => {
 
             //Servardan gelen animasyon kodlarını tüm kullanıcılar için alıyoruz
             socket.on('animate', (data) => {
-                users[data.socketId].position.x = data.x;
-                users[data.socketId].position.y = data.y;
+                try {
+                    users[data.socketId].position.x = data.x;
+                    users[data.socketId].position.y = data.y;
 
-                let userBallId = document.getElementById(data.socketId);
-                    userBallId.style.top = data.y;
-                    userBallId.style.left = data.x;
+                    let userBallId = document.getElementById(data.socketId);
+                        userBallId.style.top = data.y;
+                        userBallId.style.left = data.x;
+                }catch(e) {
+                    console.log(e);
+                }
+                
             })
             
             //mesajı alıyoruz
             let message = () => {
                 let messageBox = document.getElementById('message-box').value;
                 document.getElementById('message-box').value = '';
-                userStatusTag[0].insertAdjacentHTML('beforeend', `<li class="list-group-item"> <b>${userName}</b> ${messageBox}</li> `);
-                //Scrollu aşağı kaydırıyoruz
-                let messageArea = document.querySelectorAll('.message-area')[0];
-                messageArea.scrollTop = messageArea.scrollHeight;
+
+                //mesajı server a yolladık
+                let userId = socket.id
+                socket.emit('newMessage', {messageBox, userName, userId});
+                msgHtml(userId, userName, messageBox);
+                scrollTop();
+               
             }
             let messageEnter = (event) => {
                 event.preventDefault();
                 if (event.keyCode === 13) {
                     message();
+
                 }
+
             }
             
             let messageBtn = document.getElementById('message-btn'); 
             let messageBox = document.getElementById('message-box'); 
             messageBtn.addEventListener('click', message, false);
             messageBox.addEventListener("keyup", messageEnter, false);
-            
+            //Serverdan gelen mesajı bütün kullanıcılara yolladık
+            socket.on('newMessage', data => {
+                msgHtml(data.userId, data.userName, data.messageBox);
+                scrollTop();
+
+            })
+
         }).catch((err) => {
             console.log(err);
             return err;
@@ -125,7 +143,7 @@ let ballUserHTML = (data) => {
         for(key in data) {
             htmlContent +=  `
                 <div class="ball-user ${data[key].color}" id="${data[key].id}" style = 'left: ${data[key].position.x}px; top:${data[key].position.y}px'>
-                    <div class="ball-msg">message</div>
+                    <div class="ball-msg"></div>
                     <div class="ball-user-name"> ${data[key].userName} </div>
                 </div>`;
 
@@ -135,6 +153,17 @@ let ballUserHTML = (data) => {
 
     })
     
+}
+let msgHtml = (userId, userName, messageBox) => {
+    userStatusTag[0].insertAdjacentHTML('beforeend', `<li class="list-group-item"> <b>${userName}</b> ${messageBox}</li> `);
+    let ballMsg = document.querySelectorAll(`#${userId}`)[0].firstElementChild;
+    ballMsg.innerHTML = messageBox;
+    ballMsg.style.display = 'block';
+
+    setTimeout(() => {
+        ballMsg.style.display = 'none';
+    }, 3000);
+
 }
 
 //Animasyon işlemleri
@@ -186,4 +215,10 @@ function getPosition(el) {
         y: yPos
 
     };
+}
+
+//Scrollu aşağı kaydırıyoruz
+function scrollTop() {
+    let messageArea = document.querySelectorAll('.message-area')[0];
+    messageArea.scrollTop = messageArea.scrollHeight;
 }

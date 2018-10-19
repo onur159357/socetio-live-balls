@@ -43,7 +43,7 @@ ul {
   list-style-type: none;
 }
 
-.transition, a, .ball-content .ball-user, .message-area {
+.transition, a, .ball-content .ball-user, .ball-content .ball-user .ball-msg, .message-area {
   -webkit-transition: all 0.4s ease 0.1s;
   -moz-transition: all 0.4s ease 0.1s;
   -o-transition: all 0.4s ease 0.1s;
@@ -82,7 +82,7 @@ ul {
   clear: both;
 }
 
-.transition, a, .ball-content .ball-user, .message-area {
+.transition, a, .ball-content .ball-user, .ball-content .ball-user .ball-msg, .message-area {
   -webkit-transition: all 0.4s ease 0.1s;
   -moz-transition: all 0.4s ease 0.1s;
   -o-transition: all 0.4s ease 0.1s;
@@ -156,6 +156,7 @@ main {
   padding: 10px 20px;
   background-color: gainsboro;
   bottom: 100%;
+  display: none;
 }
 
 .ball-content .ball-user.green {

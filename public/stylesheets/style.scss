@@ -168,6 +168,8 @@ main {
             padding: 10px 20px;
             background-color: gainsboro;
             bottom: 100%;
+            display: none;
+            @extend .transition;
             @extend .radius3;
             @extend .left-50;
         }

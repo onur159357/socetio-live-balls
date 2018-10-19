@@ -54,6 +54,10 @@ io.on('connection', (socket) => {
        })
 
    })
+   //Message işlemleri
+   socket.on('newMessage', data => {
+       socket.broadcast.emit('newMessage', data);
+   })
 
 });
 
